@@ -1,24 +1,13 @@
 import { Agent, run } from '@openai/agents';
+import { AIProvider } from './provider';
 
-/**
- * Common interface for AI review providers.
- * Makes it easy to extend to multiple AI providers in the future (e.g., Anthropic, Gemini).
- */
-export interface AIProvider {
-  generateReview(prompt: string): Promise<string>;
-}
-
-/**
- * Implementation of AIProvider using the official OpenAI Agents SDK.
- */
 export class OpenAIProvider implements AIProvider {
   private model: string;
 
-  constructor(apiKey: string, model: string = 'gpt-4o') {
+  constructor(apiKey: string, model: string) {
     if (!apiKey) {
       throw new Error('OpenAI API key must be provided to initialize OpenAIProvider.');
     }
-    // Set the environment variable since the Agents SDK relies on it
     process.env.OPENAI_API_KEY = apiKey;
     this.model = model;
   }
