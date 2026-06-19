@@ -3,6 +3,7 @@ import { parseProviderConfig } from '../config';
 
 const OPENAI_KEY = 'sk-test-openai';
 const GEMINI_KEY = 'gk-test-gemini';
+const ANTHROPIC_KEY = 'sk-ant-test-anthropic';
 
 describe('parseProviderConfig', () => {
   const originalEnv = { ...process.env };
@@ -11,6 +12,7 @@ describe('parseProviderConfig', () => {
     process.env = { ...originalEnv };
     delete process.env.OPENAI_API_KEY;
     delete process.env.GEMINI_API_KEY;
+    delete process.env.ANTHROPIC_API_KEY;
   });
 
   afterEach(() => {
@@ -32,6 +34,13 @@ describe('parseProviderConfig', () => {
       expect(result.model).toBeUndefined();
     });
 
+    it('defaults to anthropic when only ANTHROPIC_API_KEY is set', () => {
+      process.env.ANTHROPIC_API_KEY = ANTHROPIC_KEY;
+      const result = parseProviderConfig('/review-ai');
+      expect(result.provider).toBe('anthropic');
+      expect(result.model).toBeUndefined();
+    });
+
     it('throws when no API keys are set', () => {
       expect(() => parseProviderConfig('/review-ai')).toThrow(
         'No AI provider configured'
@@ -39,15 +48,22 @@ describe('parseProviderConfig', () => {
     });
   });
 
-  describe('both providers available', () => {
+  describe('multiple providers available', () => {
     beforeEach(() => {
       process.env.OPENAI_API_KEY = OPENAI_KEY;
       process.env.GEMINI_API_KEY = GEMINI_KEY;
+      process.env.ANTHROPIC_API_KEY = ANTHROPIC_KEY;
     });
 
     it('defaults to openai when no flags are provided', () => {
       const result = parseProviderConfig('/review-ai');
       expect(result.provider).toBe('openai');
+    });
+
+    it('selects anthropic with --provider anthropic flag', () => {
+      const result = parseProviderConfig('/review-ai --provider anthropic');
+      expect(result.provider).toBe('anthropic');
+      expect(result.model).toBeUndefined();
     });
 
     it('selects gemini with --provider gemini flag', () => {
@@ -74,10 +90,16 @@ describe('parseProviderConfig', () => {
       expect(result.model).toBe('gemini-2.0-flash');
     });
 
-    it('combines --provider gemini with --model', () => {
-      const result = parseProviderConfig('/review-ai --provider gemini --model gemini-2.5-pro');
-      expect(result.provider).toBe('gemini');
-      expect(result.model).toBe('gemini-2.5-pro');
+    it('parses --model flag with claude model name', () => {
+      const result = parseProviderConfig('/review-ai --model claude-sonnet-4-20250514');
+      expect(result.provider).toBe('anthropic');
+      expect(result.model).toBe('claude-sonnet-4-20250514');
+    });
+
+    it('combines --provider anthropic with --model', () => {
+      const result = parseProviderConfig('/review-ai --provider anthropic --model claude-opus-4-20250514');
+      expect(result.provider).toBe('anthropic');
+      expect(result.model).toBe('claude-opus-4-20250514');
     });
 
     it('is case insensitive for provider names', () => {
@@ -107,17 +129,32 @@ describe('parseProviderConfig', () => {
         'Model appears to be a Gemini model but GEMINI_API_KEY is not set'
       );
     });
+
+    it('throws when --provider anthropic but key is missing', () => {
+      process.env.OPENAI_API_KEY = OPENAI_KEY;
+      expect(() => parseProviderConfig('/review-ai --provider anthropic')).toThrow(
+        'Anthropic provider requested but ANTHROPIC_API_KEY is not set'
+      );
+    });
+
+    it('throws when claude model requested but key is missing', () => {
+      process.env.OPENAI_API_KEY = OPENAI_KEY;
+      expect(() => parseProviderConfig('/review-ai --model claude-sonnet-4-20250514')).toThrow(
+        'Model appears to be an Anthropic model but ANTHROPIC_API_KEY is not set'
+      );
+    });
   });
 
   describe('comment body variations', () => {
     beforeEach(() => {
       process.env.OPENAI_API_KEY = OPENAI_KEY;
       process.env.GEMINI_API_KEY = GEMINI_KEY;
+      process.env.ANTHROPIC_API_KEY = ANTHROPIC_KEY;
     });
 
     it('works with extra text around the command', () => {
-      const result = parseProviderConfig('Can you review this? /review-ai --provider gemini Thanks!');
-      expect(result.provider).toBe('gemini');
+      const result = parseProviderConfig('Can you review this? /review-ai --provider anthropic Thanks!');
+      expect(result.provider).toBe('anthropic');
     });
 
     it('ignores flags not related to provider/model', () => {
