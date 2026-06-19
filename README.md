@@ -1,11 +1,11 @@
 # AI PR Review Agent
 
-An automated, serverless Pull Request Review Agent built with TypeScript, GitHub Actions, and support for **OpenAI**, **Google Gemini**, and **Anthropic Claude**.
+An automated, serverless Pull Request Review Agent built with TypeScript, GitHub Actions, and support for **OpenRouter** (default), **OpenAI**, **Google Gemini**, and **Anthropic Claude**.
 
 ## Features
 
 - **Trigger on Command**: Automatically reviews pull requests only when a comment contains the `/review-ai` trigger.
-- **Multi-Provider**: Supports OpenAI, Gemini, and Anthropic. Use any combination; switch via comment flags.
+- **Multi-Provider**: Supports OpenRouter, OpenAI, Gemini, and Anthropic. Use any combination; switch via comment flags.
 - **Deep Code Analysis**: Focuses on logic bugs, security vulnerabilities, performance issues, and missing tests.
 - **Diff Size Management**: Intelligent patch truncation and total prompt size limits to stay within context windows and minimize API costs.
 - **No File Copying Needed**: Integrate as a reusable composite action.
@@ -36,20 +36,23 @@ jobs:
       - name: Run AI Review Action
         uses: Harshit-3905/PR-Review-Agent@main
         with:
+          openrouter-api-key: ${{ secrets.OPENROUTER_API_KEY }}
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
           anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          openrouter-model: 'google/gemini-2.0-flash-exp:free'
           openai-model: 'gpt-4o'
           gemini-model: 'gemini-2.0-flash'
           anthropic-model: 'claude-sonnet-4-20250514'
 ```
 
-All API keys are optional. If only one is set, that provider is used. If multiple are set, it defaults to OpenAI unless the comment specifies otherwise.
+All API keys are optional. If only one is set, that provider is used. If multiple are set, **OpenRouter is the default** (it offers free models). Use `--provider` to override.
 
 ### Step 2: Set Up Secrets
 
 1. Navigate to **Settings** -> **Secrets and variables** -> **Actions**.
 2. Add one or more secrets:
+   - `OPENROUTER_API_KEY` — Your OpenRouter API key (default provider, supports free models)
    - `OPENAI_API_KEY` — Your OpenAI API key
    - `GEMINI_API_KEY` — Your Google Gemini API key
    - `ANTHROPIC_API_KEY` — Your Anthropic API key
@@ -80,14 +83,15 @@ When multiple providers are configured, you can choose which to use:
 
 | Command | Behavior |
 |---------|----------|
-| `/review-ai` | Uses default provider (OpenAI if multiple configured) |
+| `/review-ai` | Uses default provider (OpenRouter if configured, then OpenAI) |
+| `/review-ai --provider openrouter` | Uses OpenRouter with its default model |
 | `/review-ai --provider anthropic` | Uses Anthropic with its default model |
 | `/review-ai --provider gemini` | Uses Gemini with its default model |
 | `/review-ai --provider openai` | Uses OpenAI with its default model |
-| `/review-ai --model gpt-4o` | Uses OpenAI with the specified model |
+| `/review-ai --model gpt-4o` | Routes to OpenRouter (or OpenAI if no OpenRouter key) |
 | `/review-ai --model gemini-2.0-flash` | Uses Gemini with the specified model |
 | `/review-ai --model claude-sonnet-4-20250514` | Uses Anthropic with the specified model |
-| `/review-ai --provider gemini --model gemini-2.5-pro` | Explicit provider + model |
+| `/review-ai --provider openrouter --model meta-llama/llama-3.2-3b-instruct:free` | Explicit provider + model |
 
 ---
 
@@ -115,7 +119,8 @@ scripts/
 ├── config.ts          # Provider selection logic
 ├── gemini.ts          # Gemini AI provider
 ├── github.ts          # GitHub API client utilities
-├── openai.ts          # OpenAI provider
+├── openai.ts          # OpenAI provider (via @openai/agents)
+├── openrouter.ts      # OpenRouter provider (via openai SDK)
 ├── prompt.ts          # Review prompt compiler
 ├── provider.ts        # AIProvider interface
 ├── review.ts          # Main orchestrator
@@ -135,10 +140,12 @@ scripts/
 
 | Input | Default | Description |
 |-------|---------|-------------|
-| `openai-api-key` | — | OpenAI API key (optional if using Gemini) |
+| `openrouter-api-key` | — | OpenRouter API key (default provider, free models available) |
+| `openrouter-model` | `google/gemini-2.0-flash-exp:free` | OpenRouter model name |
+| `openai-api-key` | — | OpenAI API key |
 | `openai-model` | `gpt-4o` | OpenAI model name |
-| `gemini-api-key` | — | Gemini API key (optional if using another provider) |
+| `gemini-api-key` | — | Gemini API key |
 | `gemini-model` | `gemini-2.0-flash` | Gemini model name |
-| `anthropic-api-key` | — | Anthropic API key (optional if using another provider) |
+| `anthropic-api-key` | — | Anthropic API key |
 | `anthropic-model` | `claude-sonnet-4-20250514` | Anthropic model name |
 | `github-token` | `${{ github.token }}` | GitHub token for API access |
