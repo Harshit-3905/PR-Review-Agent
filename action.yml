@@ -37,6 +37,10 @@ inputs:
     description: 'The Anthropic model to use for generating code reviews'
     required: false
     default: 'claude-sonnet-4-20250514'
+  review-allowed-roles:
+    description: 'Comma-separated list of GitHub roles that can trigger /review-ai (e.g. owner,admin,write,member,collaborator)'
+    required: false
+    default: 'admin,write,owner,member,collaborator'
 
 runs:
   using: 'composite'
@@ -63,3 +67,4 @@ runs:
         GEMINI_MODEL: ${{ inputs.gemini-model }}
         ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
         ANTHROPIC_MODEL: ${{ inputs.anthropic-model }}
+        REVIEW_ALLOWED_ROLES: ${{ inputs.review-allowed-roles }}
