@@ -123,7 +123,8 @@ scripts/
 ├── openrouter.ts      # OpenRouter provider (via openai SDK)
 ├── prompt.ts          # Review prompt compiler
 ├── provider.ts        # AIProvider interface
-├── review.ts          # Main orchestrator
+├── review-service.ts  # Core orchestration logic (testable)
+├── review.ts          # Thin CLI/action entrypoint
 └── __tests__/         # Vitest tests
 ```
 
