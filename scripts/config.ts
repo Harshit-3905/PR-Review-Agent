@@ -1,9 +1,3 @@
-import { AIProvider } from './provider';
-import { OpenAIProvider } from './openai';
-import { GeminiProvider } from './gemini';
-import { AnthropicProvider } from './anthropic';
-import { OpenRouterProvider } from './openrouter';
-
 export interface ProviderConfig {
   provider: 'openai' | 'gemini' | 'anthropic' | 'openrouter';
   model?: string;
@@ -72,21 +66,4 @@ export function parseProviderConfig(commentBody: string): ProviderConfig {
   }
 
   throw new Error('No AI provider configured. Set OPENROUTER_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, and/or ANTHROPIC_API_KEY.');
-}
-
-export function createProvider(config: ProviderConfig): AIProvider {
-  if (config.provider === 'openrouter') {
-    const model = config.model || process.env.OPENROUTER_MODEL || 'openrouter/free';
-    return new OpenRouterProvider(process.env.OPENROUTER_API_KEY!, model);
-  }
-  if (config.provider === 'openai') {
-    const model = config.model || process.env.OPENAI_MODEL || 'gpt-4o';
-    return new OpenAIProvider(process.env.OPENAI_API_KEY!, model);
-  }
-  if (config.provider === 'gemini') {
-    const model = config.model || process.env.GEMINI_MODEL || 'gemini-2.0-flash';
-    return new GeminiProvider(process.env.GEMINI_API_KEY!, model);
-  }
-  const model = config.model || process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514';
-  return new AnthropicProvider(process.env.ANTHROPIC_API_KEY!, model);
 }

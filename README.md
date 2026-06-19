@@ -115,24 +115,26 @@ npm run lint
 
 ```
 scripts/
-├── anthropic.ts       # Anthropic Claude provider
+├── ai-provider.ts     # Centralized AI provider (system prompt, dispatch)
 ├── config.ts          # Provider selection logic
-├── gemini.ts          # Gemini AI provider
 ├── github.ts          # GitHub API client utilities
-├── openai.ts          # OpenAI provider (via @openai/agents)
-├── openrouter.ts      # OpenRouter provider (via openai SDK)
 ├── prompt.ts          # Review prompt compiler
-├── provider.ts        # AIProvider interface
 ├── review-service.ts  # Core orchestration logic (testable)
 ├── review.ts          # Thin CLI/action entrypoint
+├── providers/         # Thin SDK wrappers (no system prompt)
+│   ├── base.ts        #   ProviderClient interface
+│   ├── openai.ts      #   OpenAI SDK wrapper
+│   ├── gemini.ts      #   Gemini SDK wrapper
+│   ├── anthropic.ts   #   Anthropic SDK wrapper
+│   └── openrouter.ts  #   OpenRouter SDK wrapper
 └── __tests__/         # Vitest tests
 ```
 
 ### Adding a New Provider
 
-1. Create `scripts/<name>.ts` implementing `AIProvider` from `provider.ts`.
-2. Add a `case` in `createProvider()` in `config.ts`.
-3. Add the API key check in `parseProviderConfig()`.
+1. Create `scripts/providers/<name>.ts` implementing `ProviderClient` from `providers/base.ts`.
+2. Register it in `scripts/ai-provider.ts` (add to `ProviderType`, `createClient()`, and the env var helpers in `review.ts`).
+3. Add the API key + model detection to `parseProviderConfig()` in `config.ts`.
 4. Add the input in `action.yml`.
 
 ---
