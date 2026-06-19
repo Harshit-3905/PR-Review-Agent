@@ -47,7 +47,12 @@ export function getPRContext() {
 
 export function getAllowedRoles(): Set<string> {
   const raw = process.env.REVIEW_ALLOWED_ROLES || 'admin,write,owner,member,collaborator';
-  return new Set(raw.split(',').map((r) => r.trim().toLowerCase()));
+  const roles = new Set(raw.split(',').map((r) => r.trim().toLowerCase()));
+  // On personal repos, GitHub returns role_name "admin" for the owner.
+  // Treat "owner" as equivalent to "admin" so REVIEW_ALLOWED_ROLES=owner works for both org and personal repos.
+  if (roles.has('owner')) roles.add('admin');
+  if (roles.has('admin')) roles.add('owner');
+  return roles;
 }
 
 export async function checkReviewAuthorPermission(

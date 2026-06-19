@@ -32,9 +32,10 @@ export class ReviewService {
 
     const prompt = this.deps.compilePrompt(files);
     const reviewBody = await this.deps.generateReview(prompt);
+    const bodyWithFooter = `${reviewBody}\n\n---\n_Reviewed using ${this.deps.providerName}/${this.deps.model}_`;
 
-    await this.deps.postComment(reviewBody);
+    await this.deps.postComment(bodyWithFooter);
 
-    return { reviewBody, filesChanged: files.length, promptSize: prompt.length };
+    return { reviewBody: bodyWithFooter, filesChanged: files.length, promptSize: prompt.length };
   }
 }
