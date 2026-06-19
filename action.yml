@@ -7,7 +7,7 @@ branding:
 inputs:
   openai-api-key:
     description: 'OpenAI API key used to generate the reviews'
-    required: true
+    required: false
   github-token:
     description: 'GitHub token to fetch PR diffs and post comments'
     required: false
@@ -16,6 +16,13 @@ inputs:
     description: 'The OpenAI model to use for generating code reviews'
     required: false
     default: 'gpt-4o'
+  gemini-api-key:
+    description: 'Google Gemini API key used to generate the reviews'
+    required: false
+  gemini-model:
+    description: 'The Gemini model to use for generating code reviews'
+    required: false
+    default: 'gemini-2.0-flash'
 
 runs:
   using: 'composite'
@@ -36,3 +43,5 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github-token }}
         OPENAI_API_KEY: ${{ inputs.openai-api-key }}
         OPENAI_MODEL: ${{ inputs.openai-model }}
+        GEMINI_API_KEY: ${{ inputs.gemini-api-key }}
+        GEMINI_MODEL: ${{ inputs.gemini-model }}

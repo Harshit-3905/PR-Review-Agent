@@ -1,25 +1,20 @@
 # AI PR Review Agent
 
-An automated, serverless Pull Request Review Agent built with TypeScript, GitHub Actions, and the OpenAI API.
+An automated, serverless Pull Request Review Agent built with TypeScript, GitHub Actions, and support for **OpenAI** and **Google Gemini**.
 
 ## Features
 
 - **Trigger on Command**: Automatically reviews pull requests only when a comment contains the `/review-ai` trigger.
-- **Deep Code Analysis**: Focuses on critical aspects like logic bugs, security vulnerabilities, performance issues, and missing tests.
+- **Multi-Provider**: Supports OpenAI and Gemini. Use one or both; switch via comment flags.
+- **Deep Code Analysis**: Focuses on logic bugs, security vulnerabilities, performance issues, and missing tests.
 - **Diff Size Management**: Intelligent patch truncation and total prompt size limits to stay within context windows and minimize API costs.
-- **No File Copying Needed**: Can be integrated into any repository as a **reusable composite action** or a **reusable workflow**.
+- **No File Copying Needed**: Integrate as a reusable composite action.
 
 ---
 
 ## Integration Guide
 
-Integrating the AI PR Review Agent into any repository is quick and straightforward. You do not need to copy any script files to your repository.
-
 ### Step 1: Create a Workflow File
-In the target repository, create a workflow file at `.github/workflows/pr-review.yml`. You can choose one of the following two integration methods:
-
-#### Option A: Using the Composite Action (Recommended)
-This method allows you to define custom runner types or run additional steps in the same job.
 
 ```yaml
 name: AI PR Review
@@ -33,7 +28,6 @@ jobs:
     name: Run AI PR Review
     runs-on: ubuntu-latest
 
-    # Only run for pull request comments containing the '/review-ai' command
     if: |
       github.event.issue.pull_request &&
       contains(github.event.comment.body, '/review-ai')
@@ -43,70 +37,100 @@ jobs:
         uses: Harshit-3905/PR-Review-Agent@main
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
-          openai-model: 'gpt-4o' # Optional, defaults to gpt-4o
+          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
+          openai-model: 'gpt-4o'
+          gemini-model: 'gemini-2.0-flash'
 ```
 
-#### Option B: Using the Reusable Workflow
-This method provides a simpler configuration.
-
-```yaml
-name: AI PR Review
-
-on:
-  issue_comment:
-    types: [created]
-
-jobs:
-  review:
-    name: Run AI PR Review
-    
-    # Only run for pull request comments containing the '/review-ai' command
-    if: |
-      github.event.issue.pull_request &&
-      contains(github.event.comment.body, '/review-ai')
-
-    uses: Harshit-3905/PR-Review-Agent/.github/workflows/reusable-review.yml@main
-    with:
-      openai-model: 'gpt-4o' # Optional, defaults to gpt-4o
-    secrets:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-```
+Both API keys are optional. If only one is set, that provider is used by default. If both are set, it defaults to OpenAI unless the comment specifies otherwise.
 
 ### Step 2: Set Up Secrets
-To authenticate with the OpenAI API, you need to configure your repository secrets:
-1. Navigate to your GitHub Repository -> **Settings** -> **Secrets and variables** -> **Actions**.
-2. Click **New repository secret**.
-3. Add the following secret:
-   - **Name**: `OPENAI_API_KEY`
-   - **Value**: Your OpenAI API secret key (e.g., `sk-proj-...`).
 
-*(Note: The `GITHUB_TOKEN` is automatically provided by GitHub Actions and does not need to be manually added to Secrets.)*
+1. Navigate to **Settings** -> **Secrets and variables** -> **Actions**.
+2. Add one or both secrets:
+   - `OPENAI_API_KEY` — Your OpenAI API key
+   - `GEMINI_API_KEY` — Your Google Gemini API key
 
 ### Step 3: Enable Action Permissions
-Since the workflow needs to comment on the PR, ensure GitHub Actions has write permission:
+
+Since the workflow needs to comment on the PR, ensure GitHub Actions has **write** permission:
+
 1. Navigate to **Settings** -> **Actions** -> **General**.
 2. Under **Workflow permissions**, select **Read and write permissions**.
 3. Click **Save**.
 
----
-
-## How It Works & Usage
-
-Once integrated, using the agent is simple:
-
-1. Open a Pull Request in your repository.
-2. Post a comment on the PR containing the command:
-   ```text
-   /review-ai
-   ```
-3. The GitHub Actions workflow will trigger, analyze the diff of the changes, compile the review prompt, and query OpenAI.
-4. The agent will post its code review as a comment directly on the PR thread.
+> If you see `Resource not accessible by integration`, this is the fix.
 
 ---
 
-## Configuration & Customization
+## Usage
 
-If you want to customize the internal logic or build the action yourself:
-- **AI Model**: Customize via the `openai-model` input in Option A or Option B.
-- **System Instructions**: The core reviewing persona can be updated in `scripts/openai.ts`.
-- **Prompt Structure**: Focus areas or language formatting instructions can be modified in `scripts/prompt.ts`.
+Post a comment on your PR with the trigger command:
+
+```
+/review-ai
+```
+
+### Provider & Model Selection
+
+When both OpenAI and Gemini are configured, you can choose which provider to use:
+
+| Command | Behavior |
+|---------|----------|
+| `/review-ai` | Uses default provider (OpenAI if both are configured) |
+| `/review-ai --provider gemini` | Uses Gemini with its default model |
+| `/review-ai --provider openai` | Uses OpenAI with its default model |
+| `/review-ai --model gpt-4o` | Uses OpenAI with the specified model |
+| `/review-ai --model gemini-2.0-flash` | Uses Gemini with the specified model |
+| `/review-ai --provider gemini --model gemini-2.5-pro` | Explicit provider + model |
+
+---
+
+## Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Watch mode
+npm run test:watch
+
+# Type-check
+npm run lint
+```
+
+### Project Structure
+
+```
+scripts/
+├── config.ts          # Provider selection logic
+├── gemini.ts          # Gemini AI provider
+├── github.ts          # GitHub API client utilities
+├── openai.ts          # OpenAI provider
+├── prompt.ts          # Review prompt compiler
+├── provider.ts        # AIProvider interface
+├── review.ts          # Main orchestrator
+└── __tests__/         # Vitest tests
+```
+
+### Adding a New Provider
+
+1. Create `scripts/<name>.ts` implementing `AIProvider` from `provider.ts`.
+2. Add a `case` in `createProvider()` in `config.ts`.
+3. Add the API key check in `parseProviderConfig()`.
+4. Add the input in `action.yml`.
+
+---
+
+## Configuration
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `openai-api-key` | — | OpenAI API key (optional if using Gemini) |
+| `openai-model` | `gpt-4o` | OpenAI model name |
+| `gemini-api-key` | — | Gemini API key (optional if using OpenAI) |
+| `gemini-model` | `gemini-2.0-flash` | Gemini model name |
+| `github-token` | `${{ github.token }}` | GitHub token for API access |
