@@ -21,6 +21,8 @@ jobs:
       - name: Run AI Review Action
         uses: ./
         with:
+          openrouter-api-key: ${{ secrets.OPENROUTER_API_KEY }}
+          openrouter-model: 'google/gemini-2.0-flash-exp:free'
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           openai-model: 'gpt-4o'
           gemini-api-key: ${{ secrets.GEMINI_API_KEY }}

@@ -3,6 +3,11 @@ name: Reusable AI PR Review
 on:
   workflow_call:
     inputs:
+      openrouter-model:
+        description: 'The OpenRouter model to use'
+        required: false
+        default: 'google/gemini-2.0-flash-exp:free'
+        type: string
       openai-model:
         description: 'The OpenAI model to use'
         required: false
@@ -19,6 +24,9 @@ on:
         default: 'claude-sonnet-4-20250514'
         type: string
     secrets:
+      OPENROUTER_API_KEY:
+        description: 'OpenRouter API key used to generate reviews'
+        required: false
       OPENAI_API_KEY:
         description: 'OpenAI API key used to generate reviews'
         required: false
@@ -52,6 +60,8 @@ jobs:
         run: npm run review
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ inputs.openrouter-model }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ inputs.openai-model }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

@@ -21,7 +21,8 @@ async function run() {
 
     const providerConfig = parseProviderConfig(commentBody);
     const model = providerConfig.model
-      || (providerConfig.provider === 'openai' ? (process.env.OPENAI_MODEL || 'gpt-4o')
+      || (providerConfig.provider === 'openrouter' ? (process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-exp:free')
+        : providerConfig.provider === 'openai' ? (process.env.OPENAI_MODEL || 'gpt-4o')
         : providerConfig.provider === 'gemini' ? (process.env.GEMINI_MODEL || 'gemini-2.0-flash')
         : (process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514'));
 
