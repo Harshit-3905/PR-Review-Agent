@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { getOctokitClient, getPRContext, fetchPRFiles, createPRComment } from './github';
+import { getOctokitClient, getPRContext, fetchPRFiles, createPRComment, addCommentReaction } from './github';
 import { parseProviderConfig, createProvider } from './config';
 import { compilePrompt } from './prompt';
 
@@ -9,20 +9,28 @@ async function run() {
     if (!githubToken) throw new Error('GITHUB_TOKEN environment variable is missing.');
 
     core.info('Extracting PR context...');
-    const { prNumber, owner, repo, commentBody } = getPRContext();
-    core.info(`Context parsed: PR #${prNumber} on ${owner}/${repo}`);
+    const { prNumber, owner, repo, commentBody, commentId } = getPRContext();
+    core.info(`PR #${prNumber} on ${owner}/${repo}`);
 
-    if (!commentBody.includes('/review-ai')) {
-      core.info('Comment does not contain "/review-ai". Skipping.');
-      return;
+    const octokit = getOctokitClient(githubToken);
+
+    if (commentId) {
+      await addCommentReaction(octokit, owner, repo, commentId, 'eyes');
+      core.info('Added 👀 reaction to trigger comment.');
     }
 
-    core.info('Initializing GitHub client...');
-    const octokit = getOctokitClient(githubToken);
+    const providerConfig = parseProviderConfig(commentBody);
+    const model = providerConfig.model
+      || (providerConfig.provider === 'openai' ? (process.env.OPENAI_MODEL || 'gpt-4o')
+        : providerConfig.provider === 'gemini' ? (process.env.GEMINI_MODEL || 'gemini-2.0-flash')
+        : (process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514'));
+
+    core.info(`Provider: ${providerConfig.provider}`);
+    core.info(`Model: ${model}`);
 
     core.info('Fetching PR changed files...');
     const files = await fetchPRFiles(octokit, owner, repo, prNumber);
-    core.info(`Found ${files.length} changed files.`);
+    core.info(`Files changed: ${files.length}`);
 
     if (files.length === 0) {
       core.info('No changed files found.');
@@ -30,11 +38,9 @@ async function run() {
       return;
     }
 
-    const providerConfig = parseProviderConfig(commentBody);
-    core.info(`Using provider: ${providerConfig.provider}${providerConfig.model ? ` (model: ${providerConfig.model})` : ''}`);
-
     core.info('Compiling review prompt...');
     const prompt = compilePrompt(files);
+    core.info(`Prompt size: ${prompt.length} characters`);
 
     core.info('Creating AI provider...');
     const aiProvider = createProvider(providerConfig);
