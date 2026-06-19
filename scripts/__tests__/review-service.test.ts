@@ -78,7 +78,7 @@ describe('ReviewService', () => {
       expect(generateReview).toHaveBeenCalledWith('compiled prompt body');
     });
 
-    it('posts the generated review as a comment', async () => {
+    it('posts the generated review with provider/model footer', async () => {
       const postComment = vi.fn().mockResolvedValue(undefined);
       const generateReview = vi.fn().mockResolvedValue('AI review output');
       const deps = makeDeps({
@@ -90,7 +90,12 @@ describe('ReviewService', () => {
 
       await service.run();
 
-      expect(postComment).toHaveBeenCalledWith('AI review output');
+      expect(postComment).toHaveBeenCalledWith(
+        expect.stringContaining('AI review output')
+      );
+      expect(postComment).toHaveBeenCalledWith(
+        expect.stringContaining('openrouter/test-model')
+      );
     });
 
     it('returns correct result metadata', async () => {
@@ -107,11 +112,10 @@ describe('ReviewService', () => {
 
       const result = await service.run();
 
-      expect(result).toEqual({
-        reviewBody: 'review body',
-        filesChanged: 2,
-        promptSize: 42,
-      });
+      expect(result.filesChanged).toBe(2);
+      expect(result.promptSize).toBe(42);
+      expect(result.reviewBody).toContain('review body');
+      expect(result.reviewBody).toContain('openrouter/test-model');
     });
   });
 });
