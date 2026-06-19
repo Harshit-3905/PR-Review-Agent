@@ -18,30 +18,39 @@ describe('getAllowedRoles', () => {
     expect(roles.size).toBe(5);
   });
 
-  it('parses a single role from env var', () => {
+  it('aliases owner with admin for personal repo compatibility', () => {
     process.env.REVIEW_ALLOWED_ROLES = 'owner';
     const roles = getAllowedRoles();
     expect(roles.has('owner')).toBe(true);
-    expect(roles.has('admin')).toBe(false);
-    expect(roles.size).toBe(1);
+    expect(roles.has('admin')).toBe(true);
+    expect(roles.size).toBe(2);
+  });
+
+  it('aliases admin with owner bidirectionally', () => {
+    process.env.REVIEW_ALLOWED_ROLES = 'admin';
+    const roles = getAllowedRoles();
+    expect(roles.has('admin')).toBe(true);
+    expect(roles.has('owner')).toBe(true);
+    expect(roles.size).toBe(2);
   });
 
   it('parses comma-separated roles from env var', () => {
     process.env.REVIEW_ALLOWED_ROLES = 'owner,member,collaborator';
     const roles = getAllowedRoles();
     expect(roles.has('owner')).toBe(true);
+    expect(roles.has('admin')).toBe(true);
     expect(roles.has('member')).toBe(true);
     expect(roles.has('collaborator')).toBe(true);
-    expect(roles.has('admin')).toBe(false);
-    expect(roles.size).toBe(3);
+    expect(roles.size).toBe(4);
   });
 
   it('trims whitespace around roles', () => {
     process.env.REVIEW_ALLOWED_ROLES = '  admin , write ';
     const roles = getAllowedRoles();
     expect(roles.has('admin')).toBe(true);
+    expect(roles.has('owner')).toBe(true);
     expect(roles.has('write')).toBe(true);
-    expect(roles.size).toBe(2);
+    expect(roles.size).toBe(3);
   });
 
   it('is case-insensitive', () => {
@@ -77,6 +86,13 @@ describe('checkReviewAuthorPermission', () => {
     process.env.REVIEW_ALLOWED_ROLES = 'admin,write';
     const octokit = mockOctokit('write');
     const result = await checkReviewAuthorPermission(octokit, owner, repo, 'collaborator-user');
+    expect(result).toBe(true);
+  });
+
+  it('allows owner when role_name is admin (personal repo owner)', async () => {
+    process.env.REVIEW_ALLOWED_ROLES = 'owner';
+    const octokit = mockOctokit('admin');
+    const result = await checkReviewAuthorPermission(octokit, owner, repo, 'repo-owner');
     expect(result).toBe(true);
   });
 
