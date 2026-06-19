@@ -23,3 +23,7 @@ jobs:
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           openai-model: 'gpt-4o'
+          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
+          gemini-model: 'gemini-2.0-flash'
+          anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          anthropic-model: 'claude-sonnet-4-20250514'

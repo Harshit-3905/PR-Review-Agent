@@ -8,10 +8,26 @@ on:
         required: false
         default: 'gpt-4o'
         type: string
+      gemini-model:
+        description: 'The Gemini model to use'
+        required: false
+        default: 'gemini-2.0-flash'
+        type: string
+      anthropic-model:
+        description: 'The Anthropic model to use'
+        required: false
+        default: 'claude-sonnet-4-20250514'
+        type: string
     secrets:
       OPENAI_API_KEY:
         description: 'OpenAI API key used to generate reviews'
-        required: true
+        required: false
+      GEMINI_API_KEY:
+        description: 'Google Gemini API key used to generate reviews'
+        required: false
+      ANTHROPIC_API_KEY:
+        description: 'Anthropic API key used to generate reviews'
+        required: false
 
 jobs:
   review:
@@ -38,3 +54,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_MODEL: ${{ inputs.openai-model }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ inputs.gemini-model }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL: ${{ inputs.anthropic-model }}
