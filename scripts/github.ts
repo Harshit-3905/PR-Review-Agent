@@ -1,3 +1,4 @@
+import * as core from '@actions/core';
 import { context, getOctokit } from '@actions/github';
 
 export type OctokitType = ReturnType<typeof getOctokit>;
@@ -31,12 +32,14 @@ export function getPRContext() {
 
   const { owner, repo } = context.repo;
   const commentBody = context.payload.comment?.body || '';
+  const commentId = context.payload.comment?.id;
 
   return {
     prNumber,
     owner,
     repo,
     commentBody,
+    commentId,
   };
 }
 
@@ -87,5 +90,27 @@ export async function createPRComment(
     });
   } catch (error: any) {
     throw new Error(`Failed to create PR comment: ${error.message || error}`);
+  }
+}
+
+/**
+ * Adds a reaction emoji to an issue comment.
+ */
+export async function addCommentReaction(
+  octokit: OctokitType,
+  owner: string,
+  repo: string,
+  commentId: number,
+  content: '+1' | '-1' | 'laugh' | 'confused' | 'heart' | 'hooray' | 'rocket' | 'eyes'
+): Promise<void> {
+  try {
+    await octokit.rest.reactions.createForIssueComment({
+      owner,
+      repo,
+      comment_id: commentId,
+      content,
+    });
+  } catch (error: any) {
+    core.warning(`Failed to add reaction to comment: ${error.message || error}`);
   }
 }
