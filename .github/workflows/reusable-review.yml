@@ -6,7 +6,7 @@ on:
       openrouter-model:
         description: 'The OpenRouter model to use'
         required: false
-        default: 'google/gemini-2.0-flash-exp:free'
+        default: 'openrouter/free'
         type: string
       openai-model:
         description: 'The OpenAI model to use'

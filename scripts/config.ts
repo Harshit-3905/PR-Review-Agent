@@ -76,7 +76,7 @@ export function parseProviderConfig(commentBody: string): ProviderConfig {
 
 export function createProvider(config: ProviderConfig): AIProvider {
   if (config.provider === 'openrouter') {
-    const model = config.model || process.env.OPENROUTER_MODEL || 'google/gemini-2.0-flash-exp:free';
+    const model = config.model || process.env.OPENROUTER_MODEL || 'openrouter/free';
     return new OpenRouterProvider(process.env.OPENROUTER_API_KEY!, model);
   }
   if (config.provider === 'openai') {
