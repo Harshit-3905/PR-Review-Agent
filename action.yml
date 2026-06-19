@@ -11,7 +11,7 @@ inputs:
   openrouter-model:
     description: 'The OpenRouter model to use for generating code reviews'
     required: false
-    default: 'google/gemini-2.0-flash-exp:free'
+    default: 'openrouter/free'
   openai-api-key:
     description: 'OpenAI API key used to generate the reviews'
     required: false

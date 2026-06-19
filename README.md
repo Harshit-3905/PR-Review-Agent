@@ -40,7 +40,7 @@ jobs:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
           anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
-          openrouter-model: 'google/gemini-2.0-flash-exp:free'
+          openrouter-model: 'openrouter/free'
           openai-model: 'gpt-4o'
           gemini-model: 'gemini-2.0-flash'
           anthropic-model: 'claude-sonnet-4-20250514'
@@ -123,7 +123,8 @@ scripts/
 ├── openrouter.ts      # OpenRouter provider (via openai SDK)
 ├── prompt.ts          # Review prompt compiler
 ├── provider.ts        # AIProvider interface
-├── review.ts          # Main orchestrator
+├── review-service.ts  # Core orchestration logic (testable)
+├── review.ts          # Thin CLI/action entrypoint
 └── __tests__/         # Vitest tests
 ```
 
@@ -141,7 +142,7 @@ scripts/
 | Input | Default | Description |
 |-------|---------|-------------|
 | `openrouter-api-key` | — | OpenRouter API key (default provider, free models available) |
-| `openrouter-model` | `google/gemini-2.0-flash-exp:free` | OpenRouter model name |
+| `openrouter-model` | `openrouter/free` | OpenRouter model name |
 | `openai-api-key` | — | OpenAI API key |
 | `openai-model` | `gpt-4o` | OpenAI model name |
 | `gemini-api-key` | — | Gemini API key |
