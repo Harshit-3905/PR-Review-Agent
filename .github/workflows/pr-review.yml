@@ -29,3 +29,4 @@ jobs:
           gemini-model: 'gemini-2.0-flash'
           anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
           anthropic-model: 'claude-sonnet-4-20250514'
+          review-allowed-roles: 'owner'

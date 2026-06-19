@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { getOctokitClient, getPRContext, fetchPRFiles, createPRComment, addCommentReaction } from './github';
+import { getOctokitClient, getPRContext, fetchPRFiles, createPRComment, addCommentReaction, checkReviewAuthorPermission } from './github';
 import { parseProviderConfig } from './config';
 import { compilePrompt } from './prompt';
 import { ReviewService } from './review-service';
@@ -32,9 +32,19 @@ async function run() {
     if (!githubToken) throw new Error('GITHUB_TOKEN environment variable is missing.');
 
     core.info('Extracting PR context...');
-    const { prNumber, owner, repo, commentBody, commentId } = getPRContext();
+    const { prNumber, owner, repo, commentBody, commentId, commentAuthor } = getPRContext();
 
     const octokit = getOctokitClient(githubToken);
+
+    core.info(`Triggered by @${commentAuthor} on PR #${prNumber}`);
+
+    const isAuthorized = await checkReviewAuthorPermission(octokit, owner, repo, commentAuthor);
+    if (!isAuthorized) {
+      const msg = `🚫 @${commentAuthor}, you do not have permission to trigger an AI review. This command is restricted to users with the required role.`;
+      await createPRComment(octokit, owner, repo, prNumber, msg);
+      core.warning(`Unauthorized /review-ai attempt by @${commentAuthor}`);
+      return;
+    }
 
     const config = parseProviderConfig(commentBody);
     const model = getModel(config.provider, config.model);

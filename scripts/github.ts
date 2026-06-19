@@ -33,6 +33,7 @@ export function getPRContext() {
   const { owner, repo } = context.repo;
   const commentBody = context.payload.comment?.body || '';
   const commentId = context.payload.comment?.id;
+  const commentAuthor = context.payload.comment?.user?.login || '';
 
   return {
     prNumber,
@@ -40,7 +41,35 @@ export function getPRContext() {
     repo,
     commentBody,
     commentId,
+    commentAuthor,
   };
+}
+
+export function getAllowedRoles(): Set<string> {
+  const raw = process.env.REVIEW_ALLOWED_ROLES || 'admin,write,owner,member,collaborator';
+  return new Set(raw.split(',').map((r) => r.trim().toLowerCase()));
+}
+
+export async function checkReviewAuthorPermission(
+  octokit: OctokitType,
+  owner: string,
+  repo: string,
+  commentAuthor: string
+): Promise<boolean> {
+  const allowedRoles = getAllowedRoles();
+
+  try {
+    const { data: permission } = await octokit.rest.repos.getCollaboratorPermissionLevel({
+      owner,
+      repo,
+      username: commentAuthor,
+    });
+
+    const roleName = (permission.role_name || permission.permission || '').toLowerCase();
+    return allowedRoles.has(roleName);
+  } catch {
+    return false;
+  }
 }
 
 /**

@@ -152,3 +152,29 @@ scripts/
 | `anthropic-api-key` | — | Anthropic API key |
 | `anthropic-model` | `claude-sonnet-4-20250514` | Anthropic model name |
 | `github-token` | `${{ github.token }}` | GitHub token for API access |
+| `review-allowed-roles` | `admin,write,owner,member,collaborator` | Comma-separated list of GitHub roles that can trigger `/review-ai` |
+
+## Permission Control
+
+By default, any user with **admin** or **write** access to the repository (including organization owners, members, and outside collaborators with those permissions) can trigger a review by commenting `/review-ai`. The PR author is **not** automatically exempt — they must also have one of the allowed roles.
+
+Restrict access by setting the `review-allowed-roles` input:
+
+| Example | Effect |
+|---------|--------|
+| `'owner'` | Only the repository owner |
+| `'owner,member'` | Organization owner + members |
+| `'admin,write'` | Users with admin or write permission level |
+| `'owner,member,collaborator'` | Org owners, members, and outside collaborators |
+
+If a user without the required role posts `/review-ai`, the agent posts a comment explaining the restriction and exits without fetching diffs or consuming API tokens.
+
+### Workflow Example
+
+```yaml
+- name: Run AI Review Action
+  uses: Harshit-3905/PR-Review-Agent@main
+  with:
+    review-allowed-roles: 'owner,member'
+    # ... other inputs
+```
