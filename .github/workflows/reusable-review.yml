@@ -1,0 +1,40 @@
+name: Reusable AI PR Review
+
+on:
+  workflow_call:
+    inputs:
+      openai-model:
+        description: 'The OpenAI model to use'
+        required: false
+        default: 'gpt-4o'
+        type: string
+    secrets:
+      OPENAI_API_KEY:
+        description: 'OpenAI API key used to generate reviews'
+        required: true
+
+jobs:
+  review:
+    name: Run AI Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR Review Agent Code
+        uses: actions/checkout@v4
+        with:
+          repository: Harshit-3905/PR-Review-Agent
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run AI Review
+        run: npm run review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ inputs.openai-model }}

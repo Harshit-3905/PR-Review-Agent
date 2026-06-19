@@ -1,0 +1,38 @@
+name: 'AI PR Review Agent'
+description: 'An AI-powered PR review agent that reviews diffs and leaves constructive comments'
+branding:
+  icon: 'eye'
+  color: 'blue'
+
+inputs:
+  openai-api-key:
+    description: 'OpenAI API key used to generate the reviews'
+    required: true
+  github-token:
+    description: 'GitHub token to fetch PR diffs and post comments'
+    required: false
+    default: ${{ github.token }}
+  openai-model:
+    description: 'The OpenAI model to use for generating code reviews'
+    required: false
+    default: 'gpt-4o'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
+    - name: Install Action Dependencies
+      run: npm ci --prefix ${{ github.action_path }}
+      shell: bash
+
+    - name: Run AI PR Review
+      run: npx tsx ${{ github.action_path }}/scripts/review.ts
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        OPENAI_API_KEY: ${{ inputs.openai-api-key }}
+        OPENAI_MODEL: ${{ inputs.openai-model }}

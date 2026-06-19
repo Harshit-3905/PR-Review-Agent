@@ -1,0 +1,91 @@
+import { context, getOctokit } from '@actions/github';
+
+export type OctokitType = ReturnType<typeof getOctokit>;
+
+export interface PRFile {
+  filename: string;
+  patch?: string;
+}
+
+/**
+ * Returns an initialized Octokit client using the provided token.
+ */
+export function getOctokitClient(token: string): OctokitType {
+  return getOctokit(token);
+}
+
+/**
+ * Extracts and returns necessary metadata from the GitHub Actions context.
+ * Throws an error if the context is not a pull request issue comment.
+ */
+export function getPRContext() {
+  const prNumber = context.payload.issue?.number;
+  if (!prNumber) {
+    throw new Error('Could not find issue number in context. This workflow might not be triggered by an issue comment.');
+  }
+
+  const isPullRequest = !!context.payload.issue?.pull_request;
+  if (!isPullRequest) {
+    throw new Error('This comment is not on a pull request. AI review is only supported for pull requests.');
+  }
+
+  const { owner, repo } = context.repo;
+  const commentBody = context.payload.comment?.body || '';
+
+  return {
+    prNumber,
+    owner,
+    repo,
+    commentBody,
+  };
+}
+
+/**
+ * Fetches the list of files and their patches changed in a pull request.
+ */
+export async function fetchPRFiles(
+  octokit: OctokitType,
+  owner: string,
+  repo: string,
+  pullNumber: number
+): Promise<PRFile[]> {
+  try {
+    // GitHub listFiles endpoint paginates up to 3000 files. We fetch the first page (max 100 files)
+    // which is usually sufficient for a PR code review.
+    const { data: files } = await octokit.rest.pulls.listFiles({
+      owner,
+      repo,
+      pull_number: pullNumber,
+      per_page: 100,
+    });
+
+    return files.map((file) => ({
+      filename: file.filename,
+      patch: file.patch, // patch may be undefined for binary files or large files
+    }));
+  } catch (error: any) {
+    throw new Error(`Failed to fetch PR files: ${error.message || error}`);
+  }
+}
+
+/**
+ * Creates a comment on the pull request (which is technically an issue).
+ */
+export async function createPRComment(
+  octokit: OctokitType,
+  owner: string,
+  repo: string,
+  issueNumber: number,
+  body: string
+): Promise<void> {
+  try {
+    await octokit.rest.issues.createComment({
+      owner,
+      repo,
+      issue_number: issueNumber,
+      body,
+    });
+  } catch (error: any) {
+    throw new Error(`Failed to create PR comment: ${error.message || error}`);
+  }
+}

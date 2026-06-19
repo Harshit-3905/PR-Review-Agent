@@ -1,0 +1,25 @@
+name: AI PR Review
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  review:
+    name: Run AI PR Review
+    runs-on: ubuntu-latest
+
+    # Only run for pull request comments containing the '/review-ai' command
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/review-ai')
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run AI Review Action
+        uses: ./
+        with:
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          openai-model: 'gpt-4o'
