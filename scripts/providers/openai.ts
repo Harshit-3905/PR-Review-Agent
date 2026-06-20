@@ -1,5 +1,5 @@
 import { Agent, run } from '@openai/agents';
-import type { ProviderClient, AIMessage } from './base';
+import type { ProviderClient, AIMessage } from '../types/provider';
 
 export class OpenAIProvider implements ProviderClient {
   async generateContent(apiKey: string, model: string, messages: AIMessage[]): Promise<string> {

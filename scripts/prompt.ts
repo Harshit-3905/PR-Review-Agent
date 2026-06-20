@@ -1,4 +1,4 @@
-import { PRFile } from './github';
+import type { PRFile } from './types/github';
 
 const MAX_PATCH_CHAR_LIMIT = 10000; // Limit per file patch
 const MAX_TOTAL_CHAR_LIMIT = 80000; // Limit for the entire prompt content

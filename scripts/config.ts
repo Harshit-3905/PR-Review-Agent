@@ -1,7 +1,4 @@
-export interface ProviderConfig {
-  provider: 'openai' | 'gemini' | 'anthropic' | 'openrouter';
-  model?: string;
-}
+import type { ProviderConfig } from './types/provider';
 
 export function parseProviderConfig(commentBody: string): ProviderConfig {
   const hasOpenRouter = !!process.env.OPENROUTER_API_KEY;

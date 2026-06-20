@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parseStructuredReview, formatStructuredReview } from '../structured-review';
-import type { StructuredReview } from '../review-schema';
+import type { StructuredReview } from '../types/review';
 
 describe('parseStructuredReview', () => {
   it('parses a valid minimal JSON review', () => {

@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import type { ProviderClient, AIMessage } from './base';
+import type { ProviderClient, AIMessage } from '../types/provider';
 
 export class GeminiProvider implements ProviderClient {
   async generateContent(apiKey: string, model: string, messages: AIMessage[]): Promise<string> {

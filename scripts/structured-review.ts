@@ -1,4 +1,4 @@
-import { StructuredReview, ReviewFinding } from './review-schema';
+import type { StructuredReview, ReviewFinding } from './types/review';
 
 const VALID_SEVERITIES = ['Critical', 'High', 'Medium', 'Low', 'Nit'] as const;
 const VALID_CATEGORIES = ['Bugs', 'Security', 'Performance', 'Testing', 'Style', 'Maintainability'] as const;

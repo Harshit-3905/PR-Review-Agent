@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import type { ProviderClient, AIMessage } from './base';
+import type { ProviderClient, AIMessage } from '../types/provider';
 
 export class AnthropicProvider implements ProviderClient {
   async generateContent(apiKey: string, model: string, messages: AIMessage[]): Promise<string> {

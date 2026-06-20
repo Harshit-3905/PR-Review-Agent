@@ -3,7 +3,8 @@ import { getOctokitClient, getPRContext, fetchPRFiles, createPRComment, addComme
 import { parseProviderConfig } from './config';
 import { compilePrompt } from './prompt';
 import { ReviewService } from './review-service';
-import { AIProvider, type ProviderType } from './ai-provider';
+import type { ProviderType } from './types/provider';
+import { AIProvider } from './ai-provider';
 
 function getModel(provider: ProviderType, override?: string): string {
   if (override) return override;

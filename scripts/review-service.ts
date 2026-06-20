@@ -1,21 +1,5 @@
-import type { PRFile } from './github';
+import type { ReviewServiceDependencies, ReviewResult } from './types/review';
 import { parseStructuredReview, formatStructuredReview } from './structured-review';
-
-export interface ReviewServiceDependencies {
-  addEyesReaction(): Promise<void>;
-  fetchPRFiles(): Promise<PRFile[]>;
-  postComment(body: string): Promise<void>;
-  generateReview(prompt: string): Promise<string>;
-  compilePrompt(files: PRFile[]): string;
-  providerName: string;
-  model: string;
-}
-
-export interface ReviewResult {
-  reviewBody: string;
-  filesChanged: number;
-  promptSize: number;
-}
 
 export class ReviewService {
   constructor(private deps: ReviewServiceDependencies) {}
