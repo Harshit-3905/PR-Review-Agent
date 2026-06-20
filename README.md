@@ -41,7 +41,7 @@ jobs:
           gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
           anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
           openrouter-model: "openrouter/free"
-          openai-model: "gpt-4o"
+          openai-model: "gpt-5.4-mini"
           gemini-model: "gemini-2.0-flash"
           anthropic-model: "claude-sonnet-4-20250514"
 ```
@@ -88,7 +88,7 @@ When multiple providers are configured, you can choose which to use:
 | `/review-ai --provider anthropic`                                                | Uses Anthropic with its default model                         |
 | `/review-ai --provider gemini`                                                   | Uses Gemini with its default model                            |
 | `/review-ai --provider openai`                                                   | Uses OpenAI with its default model                            |
-| `/review-ai --model gpt-4o`                                                      | Routes to OpenRouter (or OpenAI if no OpenRouter key)         |
+| `/review-ai --model gpt-5.4-mini`                                                | Routes to OpenAI with the specified model                     |
 | `/review-ai --model gemini-2.0-flash`                                            | Uses Gemini with the specified model                          |
 | `/review-ai --model claude-sonnet-4-20250514`                                    | Uses Anthropic with the specified model                       |
 | `/review-ai --provider openrouter --model meta-llama/llama-3.2-3b-instruct:free` | Explicit provider + model                                     |
@@ -102,7 +102,7 @@ When multiple providers are configured, you can choose which to use:
 | `openrouter-api-key`   | —                                       | OpenRouter API key (default provider, free models available)       |
 | `openrouter-model`     | `openrouter/free`                       | OpenRouter model name                                              |
 | `openai-api-key`       | —                                       | OpenAI API key                                                     |
-| `openai-model`         | `gpt-4o`                                | OpenAI model name                                                  |
+| `openai-model`         | `gpt-5.4-mini`                          | OpenAI model name                                                  |
 | `gemini-api-key`       | —                                       | Gemini API key                                                     |
 | `gemini-model`         | `gemini-2.0-flash`                      | Gemini model name                                                  |
 | `anthropic-api-key`    | —                                       | Anthropic API key                                                  |

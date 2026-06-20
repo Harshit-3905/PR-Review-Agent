@@ -24,7 +24,7 @@ jobs:
           openrouter-api-key: ${{ secrets.OPENROUTER_API_KEY }}
           openrouter-model: "openrouter/free"
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
-          openai-model: "gpt-4o"
+          openai-model: "gpt-5.4-mini"
           gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
           gemini-model: "gemini-2.0-flash"
           anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}

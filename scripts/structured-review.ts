@@ -61,11 +61,10 @@ export function formatStructuredReview(review: StructuredReview): string {
 
   for (const finding of review.findings) {
     const location = finding.file
-      ? `**File:** \`${finding.file}${finding.line !== undefined ? `:${finding.line}` : ''}\`  \n`
+      ? ` \u2014 \`${finding.file}${finding.line !== undefined ? `:${finding.line}` : ''}\``
       : '';
 
-    output += `### [${finding.severity}] ${finding.category}\n\n`;
-    output += location;
+    output += `**[${finding.severity}] ${finding.category}**${location}\n\n`;
     output += `${finding.message}\n\n`;
 
     if (finding.suggestion) {
