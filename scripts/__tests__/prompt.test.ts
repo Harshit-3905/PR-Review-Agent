@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { compilePrompt } from '../prompt';
-import type { PRFile } from '../github';
+import type { PRFile } from '../types/github';
 
 function makeFile(filename: string, patch?: string): PRFile {
   return { filename, patch };

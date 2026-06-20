@@ -1,10 +1,8 @@
-import type { AIMessage, ProviderClient } from './providers/base';
+import type { AIMessage, ProviderClient, ProviderType, AIProviderConfig } from './types/provider';
 import { OpenAIProvider } from './providers/openai';
 import { GeminiProvider } from './providers/gemini';
 import { AnthropicProvider } from './providers/anthropic';
 import { OpenRouterProvider } from './providers/openrouter';
-
-export type ProviderType = 'openai' | 'gemini' | 'anthropic' | 'openrouter';
 
 const SYSTEM_PROMPT = `You are an expert software engineer and code reviewer.
 Your task is to provide a constructive, thorough, and highly professional review of the code changes in the pull request.
@@ -52,12 +50,6 @@ Rules:
 - "file" and "line" are optional but encouraged when referencing specific code.
 - "suggestion" is optional. Provide concrete code examples where helpful.
 - If no issues are found, return an empty findings array.`;
-
-export interface AIProviderConfig {
-  provider: ProviderType;
-  apiKey: string;
-  model: string;
-}
 
 export class AIProvider {
   private client: ProviderClient;

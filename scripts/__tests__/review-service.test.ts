@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { ReviewService, type ReviewServiceDependencies } from '../review-service';
+import type { ReviewServiceDependencies } from '../types/review';
+import { ReviewService } from '../review-service';
 
 function makeDeps(overrides: Partial<ReviewServiceDependencies> = {}): ReviewServiceDependencies {
   return {

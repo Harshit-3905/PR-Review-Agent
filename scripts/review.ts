@@ -3,13 +3,14 @@ import { getOctokitClient, getPRContext, fetchPRFiles, createPRComment, addComme
 import { parseProviderConfig } from './config';
 import { compilePrompt } from './prompt';
 import { ReviewService } from './review-service';
-import { AIProvider, type ProviderType } from './ai-provider';
+import type { ProviderType } from './types/provider';
+import { AIProvider } from './ai-provider';
 
 function getModel(provider: ProviderType, override?: string): string {
   if (override) return override;
   const envMap: Record<ProviderType, string> = {
     openrouter: process.env.OPENROUTER_MODEL || 'openrouter/free',
-    openai: process.env.OPENAI_MODEL || 'gpt-4o',
+    openai: process.env.OPENAI_MODEL || 'gpt-5.4-mini',
     gemini: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
     anthropic: process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514',
   };

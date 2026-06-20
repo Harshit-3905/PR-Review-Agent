@@ -33,7 +33,7 @@ describe('AIProvider', () => {
   });
 
   it('dispatches to openai provider', async () => {
-    const provider = new AIProvider({ provider: 'openai', apiKey: 'sk-key', model: 'gpt-4o' });
+    const provider = new AIProvider({ provider: 'openai', apiKey: 'sk-key', model: 'gpt-5.4-mini' });
     const result = await provider.generateReview('review this');
     expect(result).toBe('openai response');
   });

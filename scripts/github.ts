@@ -1,12 +1,8 @@
 import * as core from '@actions/core';
 import { context, getOctokit } from '@actions/github';
+import type { PRFile } from './types/github';
 
 export type OctokitType = ReturnType<typeof getOctokit>;
-
-export interface PRFile {
-  filename: string;
-  patch?: string;
-}
 
 /**
  * Returns an initialized Octokit client using the provided token.

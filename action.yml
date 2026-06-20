@@ -18,7 +18,7 @@ inputs:
   openai-model:
     description: 'The OpenAI model to use for generating code reviews'
     required: false
-    default: 'gpt-4o'
+    default: 'gpt-5.4-mini'
   github-token:
     description: 'GitHub token to fetch PR diffs and post comments'
     required: false
