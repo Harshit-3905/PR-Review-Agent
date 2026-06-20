@@ -40,10 +40,10 @@ jobs:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           gemini-api-key: ${{ secrets.GEMINI_API_KEY }}
           anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
-          openrouter-model: 'openrouter/free'
-          openai-model: 'gpt-4o'
-          gemini-model: 'gemini-2.0-flash'
-          anthropic-model: 'claude-sonnet-4-20250514'
+          openrouter-model: "openrouter/free"
+          openai-model: "gpt-4o"
+          gemini-model: "gemini-2.0-flash"
+          anthropic-model: "claude-sonnet-4-20250514"
 ```
 
 All API keys are optional. If only one is set, that provider is used. If multiple are set, **OpenRouter is the default** (it offers free models). Use `--provider` to override.
@@ -81,77 +81,33 @@ Post a comment on your PR with the trigger command:
 
 When multiple providers are configured, you can choose which to use:
 
-| Command | Behavior |
-|---------|----------|
-| `/review-ai` | Uses default provider (OpenRouter if configured, then OpenAI) |
-| `/review-ai --provider openrouter` | Uses OpenRouter with its default model |
-| `/review-ai --provider anthropic` | Uses Anthropic with its default model |
-| `/review-ai --provider gemini` | Uses Gemini with its default model |
-| `/review-ai --provider openai` | Uses OpenAI with its default model |
-| `/review-ai --model gpt-4o` | Routes to OpenRouter (or OpenAI if no OpenRouter key) |
-| `/review-ai --model gemini-2.0-flash` | Uses Gemini with the specified model |
-| `/review-ai --model claude-sonnet-4-20250514` | Uses Anthropic with the specified model |
-| `/review-ai --provider openrouter --model meta-llama/llama-3.2-3b-instruct:free` | Explicit provider + model |
-
----
-
-## Local Development
-
-```bash
-# Install dependencies
-npm install
-
-# Run tests
-npm test
-
-# Watch mode
-npm run test:watch
-
-# Type-check
-npm run lint
-```
-
-### Project Structure
-
-```
-scripts/
-├── ai-provider.ts     # Centralized AI provider (system prompt, dispatch)
-├── config.ts          # Provider selection logic
-├── github.ts          # GitHub API client utilities
-├── prompt.ts          # Review prompt compiler
-├── review-service.ts  # Core orchestration logic (testable)
-├── review.ts          # Thin CLI/action entrypoint
-├── providers/         # Thin SDK wrappers (no system prompt)
-│   ├── base.ts        #   ProviderClient interface
-│   ├── openai.ts      #   OpenAI SDK wrapper
-│   ├── gemini.ts      #   Gemini SDK wrapper
-│   ├── anthropic.ts   #   Anthropic SDK wrapper
-│   └── openrouter.ts  #   OpenRouter SDK wrapper
-└── __tests__/         # Vitest tests
-```
-
-### Adding a New Provider
-
-1. Create `scripts/providers/<name>.ts` implementing `ProviderClient` from `providers/base.ts`.
-2. Register it in `scripts/ai-provider.ts` (add to `ProviderType`, `createClient()`, and the env var helpers in `review.ts`).
-3. Add the API key + model detection to `parseProviderConfig()` in `config.ts`.
-4. Add the input in `action.yml`.
+| Command                                                                          | Behavior                                                      |
+| -------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `/review-ai`                                                                     | Uses default provider (OpenRouter if configured, then OpenAI) |
+| `/review-ai --provider openrouter`                                               | Uses OpenRouter with its default model                        |
+| `/review-ai --provider anthropic`                                                | Uses Anthropic with its default model                         |
+| `/review-ai --provider gemini`                                                   | Uses Gemini with its default model                            |
+| `/review-ai --provider openai`                                                   | Uses OpenAI with its default model                            |
+| `/review-ai --model gpt-4o`                                                      | Routes to OpenRouter (or OpenAI if no OpenRouter key)         |
+| `/review-ai --model gemini-2.0-flash`                                            | Uses Gemini with the specified model                          |
+| `/review-ai --model claude-sonnet-4-20250514`                                    | Uses Anthropic with the specified model                       |
+| `/review-ai --provider openrouter --model meta-llama/llama-3.2-3b-instruct:free` | Explicit provider + model                                     |
 
 ---
 
 ## Configuration
 
-| Input | Default | Description |
-|-------|---------|-------------|
-| `openrouter-api-key` | — | OpenRouter API key (default provider, free models available) |
-| `openrouter-model` | `openrouter/free` | OpenRouter model name |
-| `openai-api-key` | — | OpenAI API key |
-| `openai-model` | `gpt-4o` | OpenAI model name |
-| `gemini-api-key` | — | Gemini API key |
-| `gemini-model` | `gemini-2.0-flash` | Gemini model name |
-| `anthropic-api-key` | — | Anthropic API key |
-| `anthropic-model` | `claude-sonnet-4-20250514` | Anthropic model name |
-| `github-token` | `${{ github.token }}` | GitHub token for API access |
+| Input                  | Default                                 | Description                                                        |
+| ---------------------- | --------------------------------------- | ------------------------------------------------------------------ |
+| `openrouter-api-key`   | —                                       | OpenRouter API key (default provider, free models available)       |
+| `openrouter-model`     | `openrouter/free`                       | OpenRouter model name                                              |
+| `openai-api-key`       | —                                       | OpenAI API key                                                     |
+| `openai-model`         | `gpt-4o`                                | OpenAI model name                                                  |
+| `gemini-api-key`       | —                                       | Gemini API key                                                     |
+| `gemini-model`         | `gemini-2.0-flash`                      | Gemini model name                                                  |
+| `anthropic-api-key`    | —                                       | Anthropic API key                                                  |
+| `anthropic-model`      | `claude-sonnet-4-20250514`              | Anthropic model name                                               |
+| `github-token`         | `${{ github.token }}`                   | GitHub token for API access                                        |
 | `review-allowed-roles` | `admin,write,owner,member,collaborator` | Comma-separated list of GitHub roles that can trigger `/review-ai` |
 
 ## Permission Control
@@ -160,11 +116,11 @@ By default, any user with **admin** or **write** access to the repository (inclu
 
 Restrict access by setting the `review-allowed-roles` input:
 
-| Example | Effect |
-|---------|--------|
-| `'owner'` | Only the repository owner |
-| `'owner,member'` | Organization owner + members |
-| `'admin,write'` | Users with admin or write permission level |
+| Example                       | Effect                                         |
+| ----------------------------- | ---------------------------------------------- |
+| `'owner'`                     | Only the repository owner                      |
+| `'owner,member'`              | Organization owner + members                   |
+| `'admin,write'`               | Users with admin or write permission level     |
 | `'owner,member,collaborator'` | Org owners, members, and outside collaborators |
 
 If a user without the required role posts `/review-ai`, the agent posts a comment explaining the restriction and exits without fetching diffs or consuming API tokens.
@@ -175,6 +131,6 @@ If a user without the required role posts `/review-ai`, the agent posts a commen
 - name: Run AI Review Action
   uses: Harshit-3905/PR-Review-Agent@main
   with:
-    review-allowed-roles: 'owner,member'
+    review-allowed-roles: "owner,member"
     # ... other inputs
 ```

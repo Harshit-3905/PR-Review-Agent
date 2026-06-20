@@ -1,4 +1,5 @@
 import type { PRFile } from './github';
+import { parseStructuredReview, formatStructuredReview } from './structured-review';
 
 export interface ReviewServiceDependencies {
   addEyesReaction(): Promise<void>;
@@ -31,8 +32,11 @@ export class ReviewService {
     }
 
     const prompt = this.deps.compilePrompt(files);
-    const reviewBody = await this.deps.generateReview(prompt);
-    const bodyWithFooter = `${reviewBody}\n\n---\n_Reviewed using ${this.deps.providerName}/${this.deps.model}_`;
+    const rawReview = await this.deps.generateReview(prompt);
+
+    const structured = parseStructuredReview(rawReview);
+    const formattedBody = structured ? formatStructuredReview(structured) : rawReview;
+    const bodyWithFooter = `${formattedBody}\n\n---\n_Reviewed using ${this.deps.providerName}/${this.deps.model}_`;
 
     await this.deps.postComment(bodyWithFooter);
 
